@@ -13,6 +13,8 @@ CREATE TABLE "users" (
     "is_name_visible" BOOLEAN NOT NULL DEFAULT true,
     "is_email_visible" BOOLEAN NOT NULL DEFAULT true,
     "is_email_verified" BOOLEAN NOT NULL DEFAULT false,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "verified_at" TIMESTAMP(3),
     "user_type" "UserType" NOT NULL DEFAULT E'USER',
 
@@ -28,7 +30,7 @@ CREATE TABLE "posts" (
     "likes" INTEGER NOT NULL DEFAULT 0,
     "dislikes" INTEGER NOT NULL DEFAULT 0,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) NOT NULL,
+    "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "published" BOOLEAN NOT NULL DEFAULT false,
 
     CONSTRAINT "posts_pkey" PRIMARY KEY ("id")
@@ -43,7 +45,7 @@ CREATE TABLE "comments" (
     "likes" INTEGER NOT NULL DEFAULT 0,
     "dislikes" INTEGER NOT NULL DEFAULT 0,
     "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    "updated_at" TIMESTAMP(3) NOT NULL,
+    "updated_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "published" BOOLEAN NOT NULL DEFAULT false,
 
     CONSTRAINT "comments_pkey" PRIMARY KEY ("id")

@@ -1,0 +1,493 @@
+openapi: 3.0.0
+info:
+  description: The documentation for REST Challenge API. Microblog
+  version: 1.0.0-oas3
+  title: REST Challenge API
+  contact:
+    email: fabiosoto@ravn.co
+  license:
+    name: Apache 2.0
+    url: http://www.apache.org/licenses/LICENSE-2.0.html
+tags:
+  - name: Auth
+    description: calls for Authentication methods
+  - name: Post
+    description: calls for Posts endpoints
+  - name: Comment
+    description: calls for Comments endpoints
+  - name: Likes
+    description: calls for Likes and Dislikes endpoints
+paths:
+  /auth/login:
+    post:
+      tags:
+        - Auth
+      summary: login user into blog
+      description: Users can login using their correct email and password
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignInDTO'
+      responses:
+        '200':
+          description: user logged succesfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SignIn'
+        '400':
+          description: email not match password
+        '404':
+          description: email not found
+  /auth/signup:
+    post:
+      tags:
+        - Auth
+      summary: register user into blog
+      description: Users can register passing the required parameters
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignUpDTO'
+        description: User to add
+      responses:
+        '200':
+          description: user registered succesfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SignUp'
+        '409':
+          description: email already used
+  /auth/refresh:
+    post:
+      tags:
+        - Auth
+      summary: refresh token when expire
+      description: Users can refresh the token when expires
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RefreshTokenDTO'
+        description: refresh token
+      responses:
+        '200':
+          description: Token Refreshed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SignIn'
+  /auth/forgot:
+    post:
+      tags:
+        - Auth
+      summary: send message to email with temporary password
+      description: Endpoint to recover password
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ForgotPasswordDTO'
+        description: forgot password email
+      responses:
+        '200':
+          description: Email Send
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ForgotPassword'
+  /auth/profile:
+    get:
+      tags:
+        - Auth
+      security: []
+      summary: get user profile
+      description: Get the profile data from logged user
+      responses:
+        '200':
+          description: Object with profile data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+    patch:
+      tags:
+        - Auth
+      security: []
+      summary: update user profile
+      description: Update the user info
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateUserDto'
+        description: user object with new data
+      responses:
+        '200':
+          description: Object with profile data
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+          
+  /posts:
+    get:
+      tags:
+        - Post
+      summary: get posts
+      description: Returns a list of posts
+      responses:
+        '200':
+          description: Posts retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Post'
+    post:
+      tags:
+        - Post
+      summary: create a post
+      description: User create a post when authenticated
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePostDTO'
+      responses:
+        '201':
+          description: Post created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+  
+  /posts/{post_uuid}:
+    parameters: 
+      - name: post_uuid
+        in: path
+        description: post uuid
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags: 
+        - Post
+      summary: Read a post
+      description: Users can read posts
+      responses:
+        '200':
+          description: The post object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+    patch:
+      tags: 
+        - Post
+      summary: Update post
+      description: Authenticated user can update his post
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdatePostDTO'
+      responses:
+        '200':
+          description: The post object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Post'
+    delete:
+      tags: 
+        - Post
+      summary: Delete a post
+      description: Authenticated user can delete his post
+      responses:
+        '200':
+          description: Post deleted
+  /posts/{post_uuid}/comments:
+    parameters: 
+      - name: post_uuid
+        in: path
+        description: post uuid
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags:
+        - Comment
+      summary: get comments from post
+      description: Returns a list of comments
+      responses:
+        '200':
+          description: Comments retrieved
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Comment'
+    post:
+      tags:
+        - Comment
+      summary: create a comment
+      description: User comment a post when authenticated
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCommentDTO'
+      responses:
+        '201':
+          description: Comment created
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+  
+  /posts/{post_uuid}/comments/{comment_uuid}:
+    parameters: 
+      - name: post_uuid
+        in: path
+        description: post uuid
+        required: true
+        schema:
+          type: string
+          format: uuid
+      - name: comment_uuid
+        in: path
+        description: comment uuid
+        required: true
+        schema:
+          type: string
+          format: uuid
+    get:
+      tags: 
+        - Comment
+      summary: Read a comment
+      description: Users can read comments
+      responses:
+        '200':
+          description: The comment object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+    patch:
+      tags: 
+        - Comment
+      summary: Update comment
+      description: Authenticated user can update his comment
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateCommentDTO'
+      responses:
+        '200':
+          description: The commend object
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Comment'
+    delete:
+      tags: 
+        - Comment
+      summary: Delete a comment
+      description: Authenticated user can delete his comments
+      responses:
+        '200':
+          description: Comment deleted
+
+servers:
+  - url: https://virtserver.swaggerhub.com/VergilGX/RESTChallenge/1.0.0
+components:
+  schemas:
+    SignInDTO:
+      type: object
+      required:
+        - email
+        - password
+      properties:
+        email:
+          type: string
+          example: fabiosoto@ravn.co
+        password:
+          type: string
+          example: abc123456
+    SignIn:
+      type: object
+      properties:
+        accessToken:
+          type: string
+        refreshToken:
+          type: string
+    SignUpDTO:
+      type: object
+      required:
+        - name
+        - email
+        - password
+        - confirmPassword
+      properties:
+        name:
+          type: string
+          example: Fabio Soto
+        email:
+          type: string
+          example: fabiosoto@ravn.co
+        password:
+          type: string
+          example: abc123456
+        confirmPassword:
+          type: string
+          example: abc123456
+    SignUp:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: d290f1ee-6c54-4b01-90e6-d701748f0851
+        name:
+          type: string
+          example: Fabio Soto
+        email:
+          type: string
+          example: fabiosoto@ravn.co
+        is_verified:
+          type: boolean
+          example: false
+    RefreshTokenDTO:
+      type: object
+      properties:
+        refreshToken:
+          type: string
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: d290f1ee-6c54-4b01-90e6-d701748f0851
+        name:
+          type: string
+          example: Fabio Soto
+        email:
+          type: string
+          example: fabiosoto@ravn.co
+        isNameVisible:
+          type: boolean
+          example: true
+        isEmailVisible:
+          type: boolean
+          example: true
+    UpdateUserDto:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Fabio Soto
+        email:
+          type: string
+          example: fabiosoto@ravn.co
+        isNameVisible:
+          type: boolean
+          example: true
+        isEmailVisible:
+          type: boolean
+          example: true
+    ForgotPasswordDTO:
+      type: object
+      properties:
+        email:
+          type: string
+          example: fabiosoto@ravn.co
+    ForgotPassword:
+      type: object
+      properties:
+        email:
+          type: string
+          example: fabiosoto@ravn.co
+        temporary_password:
+          type: string
+          example: axc12#$2s
+    CreatePostDTO:
+      type: object
+      properties:
+        title:
+          type: string
+        content:
+          type: string
+    UpdatePostDTO:
+      type: object
+      properties:
+        title:
+          type: string
+        content:
+          type: string
+    Post:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        creator_id:
+          type: string
+        title:
+          type: string
+        content:
+          type: string
+        likes:
+          type: number
+          example: 0
+        dislikes:
+          type: number
+          example: 0
+        created_at:
+          type: string
+    CreateCommentDTO:
+      type: object
+      properties:
+        content:
+          type: string
+    UpdateCommentDTO:
+      type: object
+      properties:
+        content:
+          type: string
+    Comment:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        creator_id:
+          type: string
+        post_id:
+          type: string
+        content:
+          type: string
+        likes:
+          type: number
+          example: 0
+        dislikes:
+          type: number
+          example: 0
+        created_at:
+          type: string
